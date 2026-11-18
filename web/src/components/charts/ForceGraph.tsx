@@ -22,14 +22,14 @@ type NodeDatum = SimulationNodeDatum & {
   color: string
 }
 
-type LinkDatum = SimulationLinkDatum<NodeDatum> & { type: string; weight: number }
+type LinkDatum = SimulationLinkDatum<NodeDatum> & { type: string; weight: number; color: string }
 
 const COLORS = PALETTE.slice(0, 6)
 
 function colorFor(category: string, index: number) {
   if (!category) return COLORS[index % COLORS.length]
   let hash = 0
-  for (let i = 0; i < category.length; i += 1) hash = (hash * 31 + category.charCodeAt(i)) % 9973
+  for (const char of category) hash = (hash * 31 + char.codePointAt(0)!) % 9973
   return COLORS[hash % COLORS.length]
 }
 
@@ -81,7 +81,13 @@ export function ForceGraph({
       const source = byId.get(edge.source)
       const target = byId.get(edge.target)
       if (!source || !target) continue
-      links.push({ source, target, type: edge.type, weight: edge.weight ?? 0 })
+      links.push({
+        source,
+        target,
+        type: edge.type,
+        weight: edge.weight ?? 0,
+        color: colorFor(edge.type, links.length),
+      })
     }
 
     nodesRef.current = nodes
@@ -146,8 +152,9 @@ export function ForceGraph({
                   y1={source.y}
                   x2={target.x}
                   y2={target.y}
-                  stroke={active ? 'rgba(75,85,99,0.75)' : 'rgba(31,41,55,0.16)'}
-                  strokeWidth={active ? 1.8 : 1}
+                  stroke={active ? (focusNode?.color ?? link.color) : link.color}
+                  strokeOpacity={active ? 0.92 : 0.42}
+                  strokeWidth={active ? 2.6 : Math.min(1.8, 0.8 + link.weight * 0.08)}
                 />
               )
             })}
@@ -161,7 +168,7 @@ export function ForceGraph({
                   onMouseLeave={() => setHovered(null)}
                   style={{ cursor: 'pointer', opacity: dim ? 0.3 : 1 }}
                 >
-                  <circle r={node.radius} fill="#9ca3af" fillOpacity={0.85} stroke="rgba(31,41,55,0.16)" />
+                  <circle r={node.radius} fill={node.color} fillOpacity={0.9} stroke="#ffffff" strokeWidth={1.5} />
                   {(node.radius > 12 || node.id === focusId) && (
                     <text
                       y={node.radius + 13}

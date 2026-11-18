@@ -2,10 +2,20 @@ import { useEffect, useRef } from 'react'
 import * as echarts from 'echarts'
 import type { EChartsOption } from 'echarts'
 
+// Distinct, restrained colors are reserved for data visualization; the app chrome stays neutral.
 export const PALETTE = [
-  '#374151', '#64748b', '#9ca3af', '#4b5563',
-  '#6b7280', '#a1a1aa', '#52525b', '#d1d5db',
-  '#71717a', '#9ca3af', '#475569', '#cbd5e1',
+  '#2563eb', // blue
+  '#0f9f8f', // teal
+  '#e09a18', // amber
+  '#8055d8', // violet
+  '#e34d72', // rose
+  '#079fca', // cyan
+  '#70a92e', // lime
+  '#e76b2f', // orange
+  '#5356d8', // indigo
+  '#159b68', // emerald
+  '#c83d91', // pink
+  '#64748b', // slate
 ]
 
 export const AXIS_STYLE = {
@@ -32,7 +42,8 @@ export function useChart(option: EChartsOption | null, height = 260) {
   useEffect(() => {
     const node = containerRef.current
     if (!node) return
-    const chart = echarts.init(node, undefined, { renderer: 'canvas' })
+    // SVG rendering keeps chart colors crisp and consistent across browsers and DPR settings.
+    const chart = echarts.init(node, undefined, { renderer: 'svg' })
     chartRef.current = chart
     const observer = new ResizeObserver(() => chart.resize())
     observer.observe(node)
@@ -45,7 +56,17 @@ export function useChart(option: EChartsOption | null, height = 260) {
 
   useEffect(() => {
     if (chartRef.current && option) {
-      chartRef.current.setOption(option, true)
+      chartRef.current.setOption(
+        {
+          // Explicit global palette is a fallback for every series that does not define itemStyle.
+          color: PALETTE,
+          animation: true,
+          animationDuration: 450,
+          animationEasing: 'cubicOut',
+          ...option,
+        },
+        { notMerge: true, lazyUpdate: false },
+      )
     }
   }, [option])
 

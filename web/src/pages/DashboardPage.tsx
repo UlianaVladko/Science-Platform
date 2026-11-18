@@ -680,7 +680,7 @@ function HeatmapView({ payload }: { payload: HeatmapPayload }) {
         itemWidth: 10,
         itemHeight: 80,
         textStyle: { ...BASE_TEXT, fontSize: 10 },
-        inRange: { color: ['#f1f3f5', '#9ca3af', '#4b5563', '#6b7280'] },
+        inRange: { color: ['#eff6ff', '#93c5fd', '#3b82f6', '#1d4ed8'] },
       },
       series: [
         {

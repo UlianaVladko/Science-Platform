@@ -1,0 +1,43 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: api.Dockerfile
+    image: science-platform/api:0.1.0
+    profiles: ["full"]
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  bff:
+    build:
+      context: ./bff
+    image: science-platform/bff:1.0.0
+    environment:
+      PORT: "8080"
+      # Пока профиль full не поднят, BFF работает в деградированном режиме
+      # на синтетическом корпусе и честно помечает такие данные.
+      UPSTREAM_URL: ${UPSTREAM_URL:-http://api:8000}
+      SYNTHETIC_NLP_READY: ${SYNTHETIC_NLP_READY:-false}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./web
+    image: science-platform/web:1.0.0
+    depends_on:
+      bff:
+        condition: service_healthy
+    ports:
+      - "8088:80"
+    restart: unless-stopped

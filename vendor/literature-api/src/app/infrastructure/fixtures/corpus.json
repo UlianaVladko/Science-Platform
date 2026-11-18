@@ -1,0 +1,350 @@
+{
+  "authors": [
+    {
+      "id": "author-1",
+      "name": "Anna Petrova",
+      "orcid": null,
+      "affiliations": [
+        {
+          "id": "org-1",
+          "name": "Institute of Scientific Computing"
+        }
+      ],
+      "categories": [],
+      "publications_count": 0,
+      "citations_count": 0,
+      "h_index": null
+    },
+    {
+      "id": "author-2",
+      "name": "Ivan Smirnov",
+      "orcid": null,
+      "affiliations": [
+        {
+          "id": "org-1",
+          "name": "Institute of Scientific Computing"
+        }
+      ],
+      "categories": [],
+      "publications_count": 0,
+      "citations_count": 0,
+      "h_index": null
+    },
+    {
+      "id": "author-3",
+      "name": "Maria Kim",
+      "orcid": null,
+      "affiliations": [
+        {
+          "id": "org-1",
+          "name": "Institute of Scientific Computing"
+        }
+      ],
+      "categories": [],
+      "publications_count": 0,
+      "citations_count": 0,
+      "h_index": null
+    }
+  ],
+  "categories": [
+    {
+      "id": "cat-cs",
+      "slug": "computer-science",
+      "name": "Computer science",
+      "description": "Computational methods",
+      "parent_id": null
+    },
+    {
+      "id": "cat-nlp",
+      "slug": "nlp",
+      "name": "Natural language processing",
+      "description": "Scientific text analysis",
+      "parent_id": "cat-cs"
+    },
+    {
+      "id": "cat-ml",
+      "slug": "machine-learning",
+      "name": "Machine learning",
+      "description": "Learning from data",
+      "parent_id": "cat-cs"
+    }
+  ],
+  "publications": [
+    {
+      "id": "pub-1",
+      "title": "Neural scientific text analysis",
+      "abstract": "A demonstration scientific publication about text and learning.",
+      "publication_type": "article",
+      "publication_date": "2025-02-01",
+      "language": "en",
+      "authors": [
+        {
+          "id": "author-1",
+          "name": "Anna Petrova",
+          "orcid": null,
+          "affiliations": [
+            {
+              "id": "org-1",
+              "name": "Institute of Scientific Computing"
+            }
+          ]
+        },
+        {
+          "id": "author-2",
+          "name": "Ivan Smirnov",
+          "orcid": null,
+          "affiliations": [
+            {
+              "id": "org-1",
+              "name": "Institute of Scientific Computing"
+            }
+          ]
+        }
+      ],
+      "metrics": {
+        "citations": 1,
+        "views": 10,
+        "downloads": 2
+      },
+      "external_identifiers": [
+        {
+          "scheme": "doi",
+          "value": "10.0000/mock-1"
+        }
+      ],
+      "journal": "Science Demo",
+      "publisher": null,
+      "categories": [
+        {
+          "id": "cat-nlp",
+          "slug": "nlp",
+          "name": "Natural language processing",
+          "description": "Scientific text analysis",
+          "parent_id": "cat-cs"
+        }
+      ],
+      "keywords": [
+        "science",
+        "text"
+      ],
+      "concepts": [
+        {
+          "id": "concept-1",
+          "name": "Neural networks"
+        },
+        {
+          "id": "concept-2",
+          "name": "Semantic similarity"
+        }
+      ],
+      "files": [],
+      "processing_status": "completed"
+    },
+    {
+      "id": "pub-2",
+      "title": "Foundations of machine learning",
+      "abstract": "A demonstration scientific publication about text and learning.",
+      "publication_type": "book",
+      "publication_date": "2026-02-01",
+      "language": "en",
+      "authors": [
+        {
+          "id": "author-2",
+          "name": "Ivan Smirnov",
+          "orcid": null,
+          "affiliations": [
+            {
+              "id": "org-1",
+              "name": "Institute of Scientific Computing"
+            }
+          ]
+        },
+        {
+          "id": "author-3",
+          "name": "Maria Kim",
+          "orcid": null,
+          "affiliations": [
+            {
+              "id": "org-1",
+              "name": "Institute of Scientific Computing"
+            }
+          ]
+        }
+      ],
+      "metrics": {
+        "citations": 1,
+        "views": 20,
+        "downloads": 4
+      },
+      "external_identifiers": [
+        {
+          "scheme": "isbn",
+          "value": "9780000000002"
+        }
+      ],
+      "journal": null,
+      "publisher": "Demo Press",
+      "categories": [
+        {
+          "id": "cat-ml",
+          "slug": "machine-learning",
+          "name": "Machine learning",
+          "description": "Learning from data",
+          "parent_id": "cat-cs"
+        }
+      ],
+      "keywords": [
+        "learning"
+      ],
+      "concepts": [
+        {
+          "id": "concept-3",
+          "name": "Machine learning"
+        }
+      ],
+      "files": [],
+      "processing_status": "completed"
+    },
+    {
+      "id": "pub-3",
+      "title": "Semantic search for science",
+      "abstract": "A demonstration scientific publication about text and learning.",
+      "publication_type": "preprint",
+      "publication_date": "2024-02-01",
+      "language": "en",
+      "authors": [
+        {
+          "id": "author-1",
+          "name": "Anna Petrova",
+          "orcid": null,
+          "affiliations": [
+            {
+              "id": "org-1",
+              "name": "Institute of Scientific Computing"
+            }
+          ]
+        },
+        {
+          "id": "author-3",
+          "name": "Maria Kim",
+          "orcid": null,
+          "affiliations": [
+            {
+              "id": "org-1",
+              "name": "Institute of Scientific Computing"
+            }
+          ]
+        }
+      ],
+      "metrics": {
+        "citations": 0,
+        "views": 30,
+        "downloads": 6
+      },
+      "external_identifiers": [
+        {
+          "scheme": "doi",
+          "value": "10.0000/mock-3"
+        }
+      ],
+      "journal": null,
+      "publisher": null,
+      "categories": [
+        {
+          "id": "cat-nlp",
+          "slug": "nlp",
+          "name": "Natural language processing",
+          "description": "Scientific text analysis",
+          "parent_id": "cat-cs"
+        }
+      ],
+      "keywords": [
+        "science",
+        "text"
+      ],
+      "concepts": [
+        {
+          "id": "concept-1",
+          "name": "Neural networks"
+        },
+        {
+          "id": "concept-2",
+          "name": "Semantic similarity"
+        }
+      ],
+      "files": [],
+      "processing_status": "completed"
+    },
+    {
+      "id": "pub-4",
+      "title": "Scientific knowledge networks",
+      "abstract": "A demonstration scientific publication about text and learning.",
+      "publication_type": "monograph",
+      "publication_date": "2025-02-01",
+      "language": "en",
+      "authors": [
+        {
+          "id": "author-3",
+          "name": "Maria Kim",
+          "orcid": null,
+          "affiliations": [
+            {
+              "id": "org-1",
+              "name": "Institute of Scientific Computing"
+            }
+          ]
+        }
+      ],
+      "metrics": {
+        "citations": 0,
+        "views": 40,
+        "downloads": 8
+      },
+      "external_identifiers": [
+        {
+          "scheme": "doi",
+          "value": "10.0000/mock-4"
+        }
+      ],
+      "journal": null,
+      "publisher": "Demo Press",
+      "categories": [
+        {
+          "id": "cat-ml",
+          "slug": "machine-learning",
+          "name": "Machine learning",
+          "description": "Learning from data",
+          "parent_id": "cat-cs"
+        }
+      ],
+      "keywords": [
+        "learning"
+      ],
+      "concepts": [
+        {
+          "id": "concept-3",
+          "name": "Machine learning"
+        }
+      ],
+      "files": [],
+      "processing_status": "completed"
+    }
+  ],
+  "references": [
+    {
+      "citing_publication_id": "pub-1",
+      "cited_publication_id": "pub-2",
+      "raw_reference": "Smirnov and Kim. Foundations of machine learning."
+    },
+    {
+      "citing_publication_id": "pub-3",
+      "cited_publication_id": "pub-1",
+      "raw_reference": "Petrova and Smirnov. Neural scientific text analysis."
+    },
+    {
+      "citing_publication_id": "pub-3",
+      "cited_publication_id": null,
+      "raw_reference": "An external work not in the corpus (2020)."
+    }
+  ]
+}

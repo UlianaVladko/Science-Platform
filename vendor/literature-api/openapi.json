@@ -1,0 +1,5852 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Scientific Literature Analytics API",
+    "description": "External API skeleton with in-memory mock adapters. No databases, search engines, NLP or background workers are required.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/categories": {
+      "get": {
+        "tags": [
+          "Classification"
+        ],
+        "summary": "Get discipline tree",
+        "description": "Return root categories, or children of parent_id, with nested children and optional subtree publication counts.",
+        "operationId": "categories_api_v1_categories_get",
+        "parameters": [
+          {
+            "name": "parent_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Parent Id"
+            }
+          },
+          {
+            "name": "include_counts",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Include Counts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  },
+                  "title": "Response Categories Api V1 Categories Get"
+                },
+                "example": [
+                  {
+                    "id": "cat-cs",
+                    "slug": "computer-science",
+                    "name": "Computer science",
+                    "description": "Computational methods",
+                    "publications_count": 4,
+                    "children": [
+                      {
+                        "id": "cat-nlp",
+                        "slug": "nlp",
+                        "name": "Natural language processing",
+                        "description": "Scientific text analysis",
+                        "parent_id": "cat-cs",
+                        "publications_count": 2,
+                        "children": []
+                      },
+                      {
+                        "id": "cat-ml",
+                        "slug": "machine-learning",
+                        "name": "Machine learning",
+                        "description": "Learning from data",
+                        "parent_id": "cat-cs",
+                        "publications_count": 2,
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/search": {
+      "post": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Search publications or authors",
+        "description": "Select deterministic fixtures in lexical, semantic, hybrid or publication-only similar mode. No actual search algorithms run; all filters apply before pagination.",
+        "operationId": "search_api_v1_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              },
+              "example": {
+                "query": "text",
+                "entity_type": "publication",
+                "mode": "hybrid",
+                "filters": {},
+                "page": 1,
+                "page_size": 20,
+                "include_facets": true
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                },
+                "example": {
+                  "items": [
+                    {
+                      "entity_type": "publication",
+                      "score": 1.0,
+                      "entity": {
+                        "id": "pub-1",
+                        "title": "Neural scientific text analysis",
+                        "abstract": "A demonstration scientific publication about text and learning.",
+                        "publication_type": "article",
+                        "publication_date": "2025-02-01",
+                        "language": "en",
+                        "authors": [
+                          {
+                            "id": "author-1",
+                            "name": "Anna Petrova",
+                            "affiliations": [
+                              {
+                                "id": "org-1",
+                                "name": "Institute of Scientific Computing"
+                              }
+                            ]
+                          },
+                          {
+                            "id": "author-2",
+                            "name": "Ivan Smirnov",
+                            "affiliations": [
+                              {
+                                "id": "org-1",
+                                "name": "Institute of Scientific Computing"
+                              }
+                            ]
+                          }
+                        ],
+                        "metrics": {
+                          "citations": 1,
+                          "views": 10,
+                          "downloads": 2
+                        }
+                      },
+                      "snippets": [
+                        "A demonstration scientific publication about text and learning."
+                      ]
+                    },
+                    {
+                      "entity_type": "publication",
+                      "score": 0.5,
+                      "entity": {
+                        "id": "pub-2",
+                        "title": "Foundations of machine learning",
+                        "abstract": "A demonstration scientific publication about text and learning.",
+                        "publication_type": "book",
+                        "publication_date": "2026-02-01",
+                        "language": "en",
+                        "authors": [
+                          {
+                            "id": "author-2",
+                            "name": "Ivan Smirnov",
+                            "affiliations": [
+                              {
+                                "id": "org-1",
+                                "name": "Institute of Scientific Computing"
+                              }
+                            ]
+                          },
+                          {
+                            "id": "author-3",
+                            "name": "Maria Kim",
+                            "affiliations": [
+                              {
+                                "id": "org-1",
+                                "name": "Institute of Scientific Computing"
+                              }
+                            ]
+                          }
+                        ],
+                        "metrics": {
+                          "citations": 1,
+                          "views": 20,
+                          "downloads": 4
+                        }
+                      },
+                      "snippets": [
+                        "A demonstration scientific publication about text and learning."
+                      ]
+                    },
+                    {
+                      "entity_type": "publication",
+                      "score": 0.3333333333333333,
+                      "entity": {
+                        "id": "pub-3",
+                        "title": "Semantic search for science",
+                        "abstract": "A demonstration scientific publication about text and learning.",
+                        "publication_type": "preprint",
+                        "publication_date": "2024-02-01",
+                        "language": "en",
+                        "authors": [
+                          {
+                            "id": "author-1",
+                            "name": "Anna Petrova",
+                            "affiliations": [
+                              {
+                                "id": "org-1",
+                                "name": "Institute of Scientific Computing"
+                              }
+                            ]
+                          },
+                          {
+                            "id": "author-3",
+                            "name": "Maria Kim",
+                            "affiliations": [
+                              {
+                                "id": "org-1",
+                                "name": "Institute of Scientific Computing"
+                              }
+                            ]
+                          }
+                        ],
+                        "metrics": {
+                          "citations": 0,
+                          "views": 30,
+                          "downloads": 6
+                        }
+                      },
+                      "snippets": [
+                        "A demonstration scientific publication about text and learning."
+                      ]
+                    },
+                    {
+                      "entity_type": "publication",
+                      "score": 0.25,
+                      "entity": {
+                        "id": "pub-4",
+                        "title": "Scientific knowledge networks",
+                        "abstract": "A demonstration scientific publication about text and learning.",
+                        "publication_type": "monograph",
+                        "publication_date": "2025-02-01",
+                        "language": "en",
+                        "authors": [
+                          {
+                            "id": "author-3",
+                            "name": "Maria Kim",
+                            "affiliations": [
+                              {
+                                "id": "org-1",
+                                "name": "Institute of Scientific Computing"
+                              }
+                            ]
+                          }
+                        ],
+                        "metrics": {
+                          "citations": 0,
+                          "views": 40,
+                          "downloads": 8
+                        }
+                      },
+                      "snippets": [
+                        "A demonstration scientific publication about text and learning."
+                      ]
+                    }
+                  ],
+                  "total": 4,
+                  "page": 1,
+                  "page_size": 20,
+                  "facets": [
+                    {
+                      "field": "language",
+                      "buckets": [
+                        {
+                          "value": "en",
+                          "count": 4
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/search/suggest": {
+      "get": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Get search suggestions",
+        "description": "Return matching publication titles, author names and scientific terms from fixtures.",
+        "operationId": "suggest_api_v1_search_suggest_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "title": "Q"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 10,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Suggestions"
+                },
+                "example": {
+                  "items": [
+                    {
+                      "type": "publication",
+                      "text": "Neural scientific text analysis",
+                      "matches_count": 1
+                    },
+                    {
+                      "type": "term",
+                      "text": "Neural networks",
+                      "matches_count": 1
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/publications/{id}": {
+      "get": {
+        "tags": [
+          "Publications"
+        ],
+        "summary": "Get publication",
+        "description": "Full metadata, ordered authors, categories, concepts, metrics, files and processing status.",
+        "operationId": "get_publication_api_v1_publications__id__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Opaque publication ID",
+              "examples": [
+                "pub-1"
+              ],
+              "title": "Id"
+            },
+            "description": "Opaque publication ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Publication"
+                },
+                "example": {
+                  "id": "pub-1",
+                  "title": "Neural scientific text analysis",
+                  "abstract": "A demonstration scientific publication about text and learning.",
+                  "publication_type": "article",
+                  "publication_date": "2025-02-01",
+                  "language": "en",
+                  "authors": [
+                    {
+                      "id": "author-1",
+                      "name": "Anna Petrova",
+                      "affiliations": [
+                        {
+                          "id": "org-1",
+                          "name": "Institute of Scientific Computing"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "author-2",
+                      "name": "Ivan Smirnov",
+                      "affiliations": [
+                        {
+                          "id": "org-1",
+                          "name": "Institute of Scientific Computing"
+                        }
+                      ]
+                    }
+                  ],
+                  "metrics": {
+                    "citations": 1,
+                    "views": 10,
+                    "downloads": 2
+                  },
+                  "external_identifiers": [
+                    {
+                      "scheme": "doi",
+                      "value": "10.0000/mock-1"
+                    }
+                  ],
+                  "journal": "Science Demo",
+                  "categories": [
+                    {
+                      "id": "cat-nlp",
+                      "slug": "nlp",
+                      "name": "Natural language processing",
+                      "description": "Scientific text analysis",
+                      "parent_id": "cat-cs",
+                      "children": []
+                    }
+                  ],
+                  "keywords": [
+                    "science",
+                    "text"
+                  ],
+                  "concepts": [
+                    {
+                      "id": "concept-1",
+                      "name": "Neural networks"
+                    },
+                    {
+                      "id": "concept-2",
+                      "name": "Semantic similarity"
+                    }
+                  ],
+                  "files": [
+                    {
+                      "kind": "raw",
+                      "content_type": "application/pdf",
+                      "size_bytes": 601
+                    },
+                    {
+                      "kind": "markdown",
+                      "content_type": "text/markdown",
+                      "size_bytes": 66
+                    }
+                  ],
+                  "processing_status": "completed"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Publications"
+        ],
+        "summary": "Update publication metadata",
+        "description": "Omitted fields remain unchanged. Null clears nullable metadata; server-controlled fields are rejected.",
+        "operationId": "update_publication_api_v1_publications__id__patch",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Opaque publication ID",
+              "examples": [
+                "pub-1"
+              ],
+              "title": "Id"
+            },
+            "description": "Opaque publication ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicationUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Publication"
+                },
+                "example": {
+                  "id": "pub-1",
+                  "title": "Updated",
+                  "abstract": "A demonstration scientific publication about text and learning.",
+                  "publication_type": "article",
+                  "publication_date": "2025-02-01",
+                  "language": "en",
+                  "authors": [
+                    {
+                      "id": "author-1",
+                      "name": "Anna Petrova",
+                      "affiliations": [
+                        {
+                          "id": "org-1",
+                          "name": "Institute of Scientific Computing"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "author-2",
+                      "name": "Ivan Smirnov",
+                      "affiliations": [
+                        {
+                          "id": "org-1",
+                          "name": "Institute of Scientific Computing"
+                        }
+                      ]
+                    }
+                  ],
+                  "metrics": {
+                    "citations": 1,
+                    "views": 10,
+                    "downloads": 2
+                  },
+                  "external_identifiers": [
+                    {
+                      "scheme": "doi",
+                      "value": "10.0000/mock-1"
+                    }
+                  ],
+                  "journal": "Science Demo",
+                  "categories": [
+                    {
+                      "id": "cat-nlp",
+                      "slug": "nlp",
+                      "name": "Natural language processing",
+                      "description": "Scientific text analysis",
+                      "parent_id": "cat-cs",
+                      "children": []
+                    }
+                  ],
+                  "keywords": [
+                    "science",
+                    "text"
+                  ],
+                  "concepts": [
+                    {
+                      "id": "concept-1",
+                      "name": "Neural networks"
+                    },
+                    {
+                      "id": "concept-2",
+                      "name": "Semantic similarity"
+                    }
+                  ],
+                  "files": [
+                    {
+                      "kind": "raw",
+                      "content_type": "application/pdf",
+                      "size_bytes": 601
+                    },
+                    {
+                      "kind": "markdown",
+                      "content_type": "text/markdown",
+                      "size_bytes": 66
+                    }
+                  ],
+                  "processing_status": "completed"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Publications"
+        ],
+        "summary": "Delete publication",
+        "description": "Remove the in-memory publication and its files; incoming references become unresolved.",
+        "operationId": "delete_publication_api_v1_publications__id__delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Opaque publication ID",
+              "examples": [
+                "pub-1"
+              ],
+              "title": "Id"
+            },
+            "description": "Opaque publication ID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/publications": {
+      "post": {
+        "tags": [
+          "Publications"
+        ],
+        "summary": "Create publication",
+        "description": "Create an in-memory publication. Authors and categories must exist; external identifiers must be unique.",
+        "operationId": "create_publication_api_v1_publications_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicationCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Publication"
+                },
+                "example": {
+                  "id": "pub-5",
+                  "title": "A new publication",
+                  "publication_type": "article",
+                  "language": "en",
+                  "authors": [
+                    {
+                      "id": "author-1",
+                      "name": "Anna Petrova",
+                      "affiliations": [
+                        {
+                          "id": "org-1",
+                          "name": "Institute of Scientific Computing"
+                        }
+                      ]
+                    }
+                  ],
+                  "metrics": {
+                    "citations": 0,
+                    "views": 0,
+                    "downloads": 0
+                  },
+                  "external_identifiers": [],
+                  "categories": [
+                    {
+                      "id": "cat-nlp",
+                      "slug": "nlp",
+                      "name": "Natural language processing",
+                      "description": "Scientific text analysis",
+                      "parent_id": "cat-cs",
+                      "children": []
+                    }
+                  ],
+                  "keywords": [],
+                  "concepts": [],
+                  "files": [],
+                  "processing_status": "pending"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/publications/{id}/files/{kind}": {
+      "put": {
+        "tags": [
+          "Publications"
+        ],
+        "summary": "Accept or replace publication file",
+        "description": "Binary body: application/pdf for raw, text/markdown (UTF-8) for markdown. Maximum 5 MiB. Stored only in memory.",
+        "operationId": "put_file_api_v1_publications__id__files__kind__put",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Opaque publication ID",
+              "examples": [
+                "pub-1"
+              ],
+              "title": "Id"
+            },
+            "description": "Opaque publication ID"
+          },
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "raw",
+                "markdown"
+              ],
+              "type": "string",
+              "title": "Kind"
+            }
+          },
+          {
+            "name": "content-type",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Content-Type"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/pdf": {
+              "schema": {
+                "type": "string",
+                "contentMediaType": "application/octet-stream",
+                "title": "Content",
+                "format": "binary"
+              }
+            },
+            "text/markdown": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileAccepted"
+                },
+                "example": {
+                  "publication_id": "pub-1",
+                  "file": {
+                    "kind": "raw",
+                    "content_type": "application/pdf",
+                    "size_bytes": 13
+                  },
+                  "accepted": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Publications"
+        ],
+        "summary": "Download publication file",
+        "description": "Return prepared PDF or Markdown bytes, or the last uploaded in-memory replacement.",
+        "operationId": "get_file_api_v1_publications__id__files__kind__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Opaque publication ID",
+              "examples": [
+                "pub-1"
+              ],
+              "title": "Id"
+            },
+            "description": "Opaque publication ID"
+          },
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "raw",
+                "markdown"
+              ],
+              "type": "string",
+              "title": "Kind"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Publication file",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/markdown": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/publications/{id}/references": {
+      "get": {
+        "tags": [
+          "Publications"
+        ],
+        "summary": "Get bibliography or citations",
+        "description": "Outgoing references target cited works; incoming references identify citing works. Unresolved references have a null cited_publication_id.",
+        "operationId": "references_api_v1_publications__id__references_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Opaque publication ID",
+              "examples": [
+                "pub-1"
+              ],
+              "title": "Id"
+            },
+            "description": "Opaque publication ID"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "incoming",
+                "outgoing"
+              ],
+              "type": "string",
+              "default": "outgoing",
+              "title": "Direction"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_Reference_"
+                },
+                "example": {
+                  "items": [
+                    {
+                      "citing_publication_id": "pub-3",
+                      "cited_publication_id": "pub-1",
+                      "raw_reference": "Petrova and Smirnov. Neural scientific text analysis.",
+                      "publication": {
+                        "id": "pub-1",
+                        "title": "Neural scientific text analysis",
+                        "abstract": "A demonstration scientific publication about text and learning.",
+                        "publication_type": "article",
+                        "publication_date": "2025-02-01",
+                        "language": "en",
+                        "authors": [
+                          {
+                            "id": "author-1",
+                            "name": "Anna Petrova",
+                            "affiliations": [
+                              {
+                                "id": "org-1",
+                                "name": "Institute of Scientific Computing"
+                              }
+                            ]
+                          },
+                          {
+                            "id": "author-2",
+                            "name": "Ivan Smirnov",
+                            "affiliations": [
+                              {
+                                "id": "org-1",
+                                "name": "Institute of Scientific Computing"
+                              }
+                            ]
+                          }
+                        ],
+                        "metrics": {
+                          "citations": 1,
+                          "views": 10,
+                          "downloads": 2
+                        }
+                      }
+                    },
+                    {
+                      "citing_publication_id": "pub-3",
+                      "raw_reference": "An external work not in the corpus (2020)."
+                    }
+                  ],
+                  "total": 2,
+                  "page": 1,
+                  "page_size": 20
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/publications/{id}/view": {
+      "post": {
+        "tags": [
+          "Publications"
+        ],
+        "summary": "Register publication view",
+        "description": "Increment the fixture view count once for every call. No deduplication is implemented.",
+        "operationId": "view_api_v1_publications__id__view_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Opaque publication ID",
+              "examples": [
+                "pub-1"
+              ],
+              "title": "Id"
+            },
+            "description": "Opaque publication ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ViewCount"
+                },
+                "example": {
+                  "publication_id": "pub-1",
+                  "views": 11
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/authors/{id}": {
+      "get": {
+        "tags": [
+          "Authors"
+        ],
+        "summary": "Get researcher profile",
+        "description": "Researcher affiliations, disciplines and activity metrics. Obtain publications using POST /search with filters.author.",
+        "operationId": "author_api_v1_authors__id__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "examples": [
+                "author-1"
+              ],
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Author"
+                },
+                "example": {
+                  "id": "author-1",
+                  "name": "Anna Petrova",
+                  "affiliations": [
+                    {
+                      "id": "org-1",
+                      "name": "Institute of Scientific Computing"
+                    }
+                  ],
+                  "categories": [
+                    {
+                      "id": "cat-nlp",
+                      "slug": "nlp",
+                      "name": "Natural language processing",
+                      "description": "Scientific text analysis",
+                      "parent_id": "cat-cs",
+                      "children": []
+                    }
+                  ],
+                  "publications_count": 2,
+                  "citations_count": 1,
+                  "h_index": 1
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/summary": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get corpus summary",
+        "description": "Return fixture counters; this_period refers to the fixed demonstration year 2026.",
+        "operationId": "summary_api_v1_analytics_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CorpusSummary"
+                },
+                "example": {
+                  "total_publications": 4,
+                  "total_authors": 3,
+                  "total_citations": 2,
+                  "total_downloads": 20,
+                  "avg_citations_per_publication": 0.5,
+                  "publications_this_period": 1,
+                  "new_authors_this_period": 1
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/aggregates": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get analytical aggregates",
+        "description": "One or two comma-separated dimensions. Only documented metric/dimension combinations are supported. Two dimensions form heatmap data. period is a demonstration publication year filter, not an arbitrary date expression.",
+        "operationId": "aggregates_api_v1_analytics_aggregates_get",
+        "parameters": [
+          {
+            "name": "metric",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "publications",
+                "added_documents",
+                "citations",
+                "term_frequency"
+              ],
+              "type": "string",
+              "default": "publications",
+              "title": "Metric"
+            }
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(publication_year|created_date|category|language|publication_type|organization|status|source|coauthors_count|citation_year|keyword|concept|lemma)(,(publication_year|created_date|category|language|publication_type|organization|status|source|coauthors_count|citation_year|keyword|concept|lemma))?$",
+              "description": "One or two unique comma-separated dimensions; see metric/group_by matrix in README.",
+              "default": "publication_year",
+              "title": "Group By"
+            },
+            "description": "One or two unique comma-separated dimensions; see metric/group_by matrix in README."
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "all",
+                "2024",
+                "2025",
+                "2026"
+              ],
+              "type": "string",
+              "default": "all",
+              "title": "Period"
+            }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Language"
+            }
+          },
+          {
+            "name": "publication_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/PublicationType"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Publication Type"
+            }
+          },
+          {
+            "name": "author",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Author"
+            }
+          },
+          {
+            "name": "organization",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Organization"
+            }
+          },
+          {
+            "name": "term",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Term"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AggregateResult"
+                },
+                "example": {
+                  "metric": "publications",
+                  "group_by": [
+                    "publication_year"
+                  ],
+                  "points": [
+                    {
+                      "dimensions": {
+                        "publication_year": "2024"
+                      },
+                      "value": 1.0
+                    },
+                    {
+                      "dimensions": {
+                        "publication_year": "2025"
+                      },
+                      "value": 2.0
+                    },
+                    {
+                      "dimensions": {
+                        "publication_year": "2026"
+                      },
+                      "value": 1.0
+                    }
+                  ],
+                  "data_as_of": "2026-11-01T00:00:00Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/top": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get rankings",
+        "description": "Publication citations/views/downloads, author citations/publications, keyword/concept frequency. Other combinations fail validation.",
+        "operationId": "top_api_v1_analytics_top_get",
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "publication",
+                "author",
+                "keyword",
+                "concept"
+              ],
+              "type": "string",
+              "default": "publication",
+              "title": "Entity"
+            }
+          },
+          {
+            "name": "metric",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "citations",
+                "views",
+                "downloads",
+                "publications",
+                "frequency"
+              ],
+              "type": "string",
+              "default": "citations",
+              "title": "Metric"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "all",
+                "2024",
+                "2025",
+                "2026"
+              ],
+              "type": "string",
+              "default": "all",
+              "title": "Period"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 10,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ranking"
+                },
+                "example": {
+                  "metric": "citations",
+                  "items": [
+                    {
+                      "position": 1,
+                      "object": {
+                        "entity_type": "publication",
+                        "id": "pub-1",
+                        "label": "Neural scientific text analysis"
+                      },
+                      "value": 1.0
+                    },
+                    {
+                      "position": 2,
+                      "object": {
+                        "entity_type": "publication",
+                        "id": "pub-2",
+                        "label": "Foundations of machine learning"
+                      },
+                      "value": 1.0
+                    },
+                    {
+                      "position": 3,
+                      "object": {
+                        "entity_type": "publication",
+                        "id": "pub-3",
+                        "label": "Semantic search for science"
+                      },
+                      "value": 0.0
+                    },
+                    {
+                      "position": 4,
+                      "object": {
+                        "entity_type": "publication",
+                        "id": "pub-4",
+                        "label": "Scientific knowledge networks"
+                      },
+                      "value": 0.0
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/graphs": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get scientific graph",
+        "description": "Small citation, coauthor or concept graph. Root-centered traversal follows edges in both directions up to max_depth. Without root_id, return an overview. max_nodes bounds returned nodes; edges always reference returned nodes.",
+        "operationId": "graph_api_v1_graphs_get",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "citation",
+                "coauthor",
+                "concept"
+              ],
+              "type": "string",
+              "default": "citation",
+              "title": "Type"
+            }
+          },
+          {
+            "name": "root_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Root Id"
+            }
+          },
+          {
+            "name": "max_depth",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 5,
+              "minimum": 0,
+              "default": 2,
+              "title": "Max Depth"
+            }
+          },
+          {
+            "name": "max_nodes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Max Nodes"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "all",
+                "2024",
+                "2025",
+                "2026"
+              ],
+              "type": "string",
+              "default": "all",
+              "title": "Period"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Graph"
+                },
+                "example": {
+                  "nodes": [
+                    {
+                      "id": "pub-1",
+                      "type": "publication",
+                      "label": "Neural scientific text analysis"
+                    },
+                    {
+                      "id": "pub-2",
+                      "type": "publication",
+                      "label": "Foundations of machine learning"
+                    },
+                    {
+                      "id": "pub-3",
+                      "type": "publication",
+                      "label": "Semantic search for science"
+                    },
+                    {
+                      "id": "pub-4",
+                      "type": "publication",
+                      "label": "Scientific knowledge networks"
+                    }
+                  ],
+                  "edges": [
+                    {
+                      "source": "pub-1",
+                      "target": "pub-2",
+                      "type": "cites"
+                    },
+                    {
+                      "source": "pub-3",
+                      "target": "pub-1",
+                      "type": "cites"
+                    }
+                  ],
+                  "truncated": false,
+                  "data_as_of": "2026-11-01T00:00:00Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analysis/jobs": {
+      "post": {
+        "tags": [
+          "Analysis"
+        ],
+        "summary": "Submit analytical job",
+        "description": "Accept a typed processing, term extraction or clustering request. New mock jobs remain pending; clustering also creates a pending run. No computations or background workers are started.",
+        "operationId": "start_job_api_v1_analysis_jobs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/ProcessJobRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ExtractJobRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ClusteringJobRequest"
+                  }
+                ],
+                "title": "Command",
+                "discriminator": {
+                  "propertyName": "operation",
+                  "mapping": {
+                    "process_publications": "#/components/schemas/ProcessJobRequest",
+                    "extract_terms": "#/components/schemas/ExtractJobRequest",
+                    "clustering": "#/components/schemas/ClusteringJobRequest"
+                  }
+                }
+              },
+              "example": {
+                "operation": "clustering",
+                "publication_ids": [
+                  "pub-1",
+                  "pub-2"
+                ],
+                "parameters": {
+                  "algorithm": "kmeans",
+                  "n_clusters": 2
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisJob"
+                },
+                "example": {
+                  "job_id": "job-1",
+                  "operation": "clustering",
+                  "status": "pending",
+                  "progress": 0.0,
+                  "created_at": "2026-11-01T00:00:00Z",
+                  "run_id": "run-2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "Analysis"
+        ],
+        "summary": "Get job state",
+        "description": "Read pending/running/completed/failed demo jobs (job-pending, job-running, job-completed, job-failed), or a newly accepted task.",
+        "operationId": "job_api_v1_jobs__job_id__get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "examples": [
+                "job-completed"
+              ],
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisJob"
+                },
+                "example": {
+                  "job_id": "job-completed",
+                  "operation": "extract_terms",
+                  "status": "completed",
+                  "progress": 100.0,
+                  "created_at": "2026-11-01T00:00:00Z",
+                  "completed_at": "2026-11-01T00:00:00Z",
+                  "result": {
+                    "processed_publications": 2
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analysis/clustering/runs": {
+      "get": {
+        "tags": [
+          "Analysis"
+        ],
+        "summary": "List clustering runs",
+        "description": "Paginated fixture run summaries without cluster membership.",
+        "operationId": "runs_api_v1_analysis_clustering_runs_get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_ClusteringRun_"
+                },
+                "example": {
+                  "items": [
+                    {
+                      "run_id": "run-1",
+                      "algorithm": "kmeans",
+                      "parameters": {
+                        "algorithm": "kmeans",
+                        "feature_source": "embeddings",
+                        "n_clusters": 2
+                      },
+                      "status": "completed",
+                      "processed_publications": 4,
+                      "metrics": {
+                        "silhouette": 0.61,
+                        "clusters_count": 2
+                      }
+                    }
+                  ],
+                  "total": 1,
+                  "page": 1,
+                  "page_size": 20
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analysis/clustering/runs/{run_id}": {
+      "get": {
+        "tags": [
+          "Analysis"
+        ],
+        "summary": "Get clustering result",
+        "description": "Typed parameters, metrics and cluster membership. run-1 is a completed deterministic demonstration.",
+        "operationId": "run_api_v1_analysis_clustering_runs__run_id__get",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "examples": [
+                "run-1"
+              ],
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClusteringRunDetail"
+                },
+                "example": {
+                  "run_id": "run-1",
+                  "algorithm": "kmeans",
+                  "parameters": {
+                    "algorithm": "kmeans",
+                    "feature_source": "embeddings",
+                    "n_clusters": 2
+                  },
+                  "status": "completed",
+                  "processed_publications": 4,
+                  "metrics": {
+                    "silhouette": 0.61,
+                    "clusters_count": 2
+                  },
+                  "clusters": [
+                    {
+                      "cluster_id": "cluster-1",
+                      "size": 2,
+                      "publication_ids": [
+                        "pub-1",
+                        "pub-3"
+                      ],
+                      "keywords": [
+                        "text"
+                      ]
+                    },
+                    {
+                      "cluster_id": "cluster-2",
+                      "size": 2,
+                      "publication_ids": [
+                        "pub-2",
+                        "pub-4"
+                      ],
+                      "keywords": [
+                        "learning"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "BAD_REQUEST",
+                    "message": "Invalid request",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "PUBLICATION_NOT_FOUND",
+                    "message": "Object not found",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "IDENTIFIER_CONFLICT",
+                    "message": "Operation conflict",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input validation failed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Input validation failed",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": "Internal server error",
+                    "request_id": "req-example"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AggregatePoint": {
+        "properties": {
+          "dimensions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Dimensions"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "dimensions",
+          "value"
+        ],
+        "title": "AggregatePoint"
+      },
+      "AggregateResult": {
+        "properties": {
+          "metric": {
+            "type": "string",
+            "title": "Metric"
+          },
+          "group_by": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Group By"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/AggregatePoint"
+            },
+            "type": "array",
+            "title": "Points"
+          },
+          "data_as_of": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Data As Of"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "metric",
+          "group_by",
+          "points",
+          "data_as_of"
+        ],
+        "title": "AggregateResult"
+      },
+      "AnalysisJob": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "process_publications",
+              "extract_terms",
+              "clustering"
+            ],
+            "title": "Operation"
+          },
+          "status": {
+            "$ref": "#/components/schemas/JobStatus"
+          },
+          "progress": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Progress"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JobResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JobError"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "job_id",
+          "operation",
+          "status",
+          "progress",
+          "created_at"
+        ],
+        "title": "AnalysisJob"
+      },
+      "Author": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "orcid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Orcid"
+          },
+          "affiliations": {
+            "items": {
+              "$ref": "#/components/schemas/Organization"
+            },
+            "type": "array",
+            "title": "Affiliations"
+          },
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/Category"
+            },
+            "type": "array",
+            "title": "Categories"
+          },
+          "publications_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Publications Count",
+            "default": 0
+          },
+          "citations_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Citations Count",
+            "default": 0
+          },
+          "h_index": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "H Index"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "Author"
+      },
+      "AuthorHit": {
+        "properties": {
+          "entity_type": {
+            "type": "string",
+            "const": "author",
+            "title": "Entity Type",
+            "default": "author"
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Score"
+          },
+          "entity": {
+            "$ref": "#/components/schemas/AuthorSummary"
+          },
+          "snippets": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Snippets"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "score",
+          "entity"
+        ],
+        "title": "AuthorHit"
+      },
+      "AuthorSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "orcid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Orcid"
+          },
+          "affiliations": {
+            "items": {
+              "$ref": "#/components/schemas/Organization"
+            },
+            "type": "array",
+            "title": "Affiliations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "AuthorSummary"
+      },
+      "Category": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "publications_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publications Count"
+          },
+          "children": {
+            "items": {
+              "$ref": "#/components/schemas/Category"
+            },
+            "type": "array",
+            "title": "Children"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "name"
+        ],
+        "title": "Category"
+      },
+      "Cluster": {
+        "properties": {
+          "cluster_id": {
+            "type": "string",
+            "title": "Cluster Id"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Size"
+          },
+          "publication_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Publication Ids"
+          },
+          "keywords": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Keywords"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "cluster_id",
+          "size",
+          "publication_ids"
+        ],
+        "title": "Cluster"
+      },
+      "ClusterMetrics": {
+        "properties": {
+          "silhouette": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": -1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Silhouette"
+          },
+          "clusters_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Clusters Count"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "clusters_count"
+        ],
+        "title": "ClusterMetrics"
+      },
+      "ClusteringJobRequest": {
+        "properties": {
+          "operation": {
+            "type": "string",
+            "const": "clustering",
+            "title": "Operation"
+          },
+          "publication_ids": {
+            "items": {
+              "type": "string",
+              "maxLength": 200,
+              "minLength": 1
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "minItems": 1,
+            "title": "Publication Ids"
+          },
+          "parameters": {
+            "$ref": "#/components/schemas/ClusteringParameters"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "operation",
+          "publication_ids"
+        ],
+        "title": "ClusteringJobRequest"
+      },
+      "ClusteringParameters": {
+        "properties": {
+          "algorithm": {
+            "type": "string",
+            "enum": [
+              "kmeans",
+              "hdbscan"
+            ],
+            "title": "Algorithm",
+            "default": "kmeans"
+          },
+          "feature_source": {
+            "type": "string",
+            "enum": [
+              "embeddings",
+              "keywords"
+            ],
+            "title": "Feature Source",
+            "default": "embeddings"
+          },
+          "n_clusters": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 2.0,
+            "title": "N Clusters",
+            "default": 2
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ClusteringParameters"
+      },
+      "ClusteringRun": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "algorithm": {
+            "type": "string",
+            "enum": [
+              "kmeans",
+              "hdbscan"
+            ],
+            "title": "Algorithm"
+          },
+          "parameters": {
+            "$ref": "#/components/schemas/ClusteringParameters"
+          },
+          "status": {
+            "$ref": "#/components/schemas/JobStatus"
+          },
+          "processed_publications": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Processed Publications"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/ClusterMetrics"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "algorithm",
+          "parameters",
+          "status",
+          "processed_publications",
+          "metrics"
+        ],
+        "title": "ClusteringRun"
+      },
+      "ClusteringRunDetail": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "algorithm": {
+            "type": "string",
+            "enum": [
+              "kmeans",
+              "hdbscan"
+            ],
+            "title": "Algorithm"
+          },
+          "parameters": {
+            "$ref": "#/components/schemas/ClusteringParameters"
+          },
+          "status": {
+            "$ref": "#/components/schemas/JobStatus"
+          },
+          "processed_publications": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Processed Publications"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/ClusterMetrics"
+          },
+          "clusters": {
+            "items": {
+              "$ref": "#/components/schemas/Cluster"
+            },
+            "type": "array",
+            "title": "Clusters"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "algorithm",
+          "parameters",
+          "status",
+          "processed_publications",
+          "metrics",
+          "clusters"
+        ],
+        "title": "ClusteringRunDetail"
+      },
+      "CorpusSummary": {
+        "properties": {
+          "total_publications": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Publications"
+          },
+          "total_authors": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Authors"
+          },
+          "total_citations": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Citations"
+          },
+          "total_downloads": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Downloads"
+          },
+          "avg_citations_per_publication": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Avg Citations Per Publication"
+          },
+          "publications_this_period": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Publications This Period"
+          },
+          "new_authors_this_period": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "New Authors This Period"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "total_publications",
+          "total_authors",
+          "total_citations",
+          "total_downloads",
+          "avg_citations_per_publication",
+          "publications_this_period",
+          "new_authors_this_period"
+        ],
+        "title": "CorpusSummary"
+      },
+      "ErrorDetail": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "details": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ValidationIssue"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "request_id"
+        ],
+        "title": "ErrorDetail"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorDetail"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "title": "ErrorResponse"
+      },
+      "ExternalIdentifier": {
+        "properties": {
+          "scheme": {
+            "type": "string",
+            "enum": [
+              "doi",
+              "isbn",
+              "arxiv",
+              "other"
+            ],
+            "title": "Scheme"
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Value"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "scheme",
+          "value"
+        ],
+        "title": "ExternalIdentifier"
+      },
+      "ExtractJobRequest": {
+        "properties": {
+          "operation": {
+            "type": "string",
+            "const": "extract_terms",
+            "title": "Operation"
+          },
+          "publication_ids": {
+            "items": {
+              "type": "string",
+              "maxLength": 200,
+              "minLength": 1
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "minItems": 1,
+            "title": "Publication Ids"
+          },
+          "parameters": {
+            "$ref": "#/components/schemas/TermParameters"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "operation",
+          "publication_ids"
+        ],
+        "title": "ExtractJobRequest"
+      },
+      "FacetBucket": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Count"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "count"
+        ],
+        "title": "FacetBucket"
+      },
+      "FileAccepted": {
+        "properties": {
+          "publication_id": {
+            "type": "string",
+            "title": "Publication Id"
+          },
+          "file": {
+            "$ref": "#/components/schemas/PublicationFile"
+          },
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "publication_id",
+          "file"
+        ],
+        "title": "FileAccepted"
+      },
+      "Graph": {
+        "properties": {
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/GraphNode"
+            },
+            "type": "array",
+            "title": "Nodes"
+          },
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/GraphEdge"
+            },
+            "type": "array",
+            "title": "Edges"
+          },
+          "truncated": {
+            "type": "boolean",
+            "title": "Truncated"
+          },
+          "data_as_of": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Data As Of"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nodes",
+          "edges",
+          "truncated",
+          "data_as_of"
+        ],
+        "title": "Graph"
+      },
+      "GraphEdge": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "target": {
+            "type": "string",
+            "title": "Target"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "cites",
+              "coauthor",
+              "cooccurs"
+            ],
+            "title": "Type"
+          },
+          "weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source",
+          "target",
+          "type"
+        ],
+        "title": "GraphEdge"
+      },
+      "GraphNode": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "publication",
+              "author",
+              "concept"
+            ],
+            "title": "Type"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "label"
+        ],
+        "title": "GraphNode"
+      },
+      "JobError": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "JobError"
+      },
+      "JobResult": {
+        "properties": {
+          "processed_publications": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Processed Publications"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "processed_publications"
+        ],
+        "title": "JobResult"
+      },
+      "JobStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "running",
+          "completed",
+          "failed"
+        ],
+        "title": "JobStatus"
+      },
+      "Organization": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "Organization"
+      },
+      "Page_ClusteringRun_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ClusteringRun"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Page Size"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "Page[ClusteringRun]"
+      },
+      "Page_Reference_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Reference"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Page Size"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "Page[Reference]"
+      },
+      "ProcessJobRequest": {
+        "properties": {
+          "operation": {
+            "type": "string",
+            "const": "process_publications",
+            "title": "Operation"
+          },
+          "publication_ids": {
+            "items": {
+              "type": "string",
+              "maxLength": 200,
+              "minLength": 1
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "minItems": 1,
+            "title": "Publication Ids"
+          },
+          "parameters": {
+            "$ref": "#/components/schemas/ProcessingParameters"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "operation",
+          "publication_ids"
+        ],
+        "title": "ProcessJobRequest"
+      },
+      "ProcessingParameters": {
+        "properties": {
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          },
+          "force": {
+            "type": "boolean",
+            "title": "Force",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ProcessingParameters"
+      },
+      "Publication": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "abstract": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abstract"
+          },
+          "publication_type": {
+            "$ref": "#/components/schemas/PublicationType"
+          },
+          "publication_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publication Date"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language"
+          },
+          "authors": {
+            "items": {
+              "$ref": "#/components/schemas/AuthorSummary"
+            },
+            "type": "array",
+            "title": "Authors"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/PublicationMetrics"
+          },
+          "external_identifiers": {
+            "items": {
+              "$ref": "#/components/schemas/ExternalIdentifier"
+            },
+            "type": "array",
+            "title": "External Identifiers"
+          },
+          "journal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Journal"
+          },
+          "publisher": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publisher"
+          },
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/Category"
+            },
+            "type": "array",
+            "title": "Categories"
+          },
+          "keywords": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Keywords"
+          },
+          "concepts": {
+            "items": {
+              "$ref": "#/components/schemas/ScientificConcept"
+            },
+            "type": "array",
+            "title": "Concepts"
+          },
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/PublicationFile"
+            },
+            "type": "array",
+            "title": "Files"
+          },
+          "processing_status": {
+            "$ref": "#/components/schemas/PublicationProcessingStatus",
+            "default": "pending"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "publication_type",
+          "language",
+          "authors"
+        ],
+        "title": "Publication"
+      },
+      "PublicationAuthorInput": {
+        "properties": {
+          "author_id": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Author Id"
+          },
+          "affiliation_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "minLength": 1
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Affiliation Ids"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "author_id"
+        ],
+        "title": "PublicationAuthorInput"
+      },
+      "PublicationCreate": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "abstract": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abstract"
+          },
+          "publication_type": {
+            "$ref": "#/components/schemas/PublicationType"
+          },
+          "publication_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publication Date"
+          },
+          "language": {
+            "type": "string",
+            "maxLength": 10,
+            "minLength": 2,
+            "title": "Language",
+            "default": "en"
+          },
+          "authors": {
+            "items": {
+              "$ref": "#/components/schemas/PublicationAuthorInput"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Authors"
+          },
+          "category_ids": {
+            "items": {
+              "type": "string",
+              "maxLength": 200,
+              "minLength": 1
+            },
+            "type": "array",
+            "title": "Category Ids"
+          },
+          "external_identifiers": {
+            "items": {
+              "$ref": "#/components/schemas/ExternalIdentifier"
+            },
+            "type": "array",
+            "title": "External Identifiers"
+          },
+          "journal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Journal"
+          },
+          "publisher": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publisher"
+          },
+          "keywords": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Keywords"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "publication_type",
+          "authors"
+        ],
+        "title": "PublicationCreate",
+        "examples": [
+          {
+            "authors": [
+              {
+                "author_id": "author-1"
+              }
+            ],
+            "category_ids": [
+              "cat-nlp"
+            ],
+            "language": "en",
+            "publication_type": "article",
+            "title": "Scientific text analysis"
+          }
+        ]
+      },
+      "PublicationFile": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "raw",
+              "markdown"
+            ],
+            "title": "Kind"
+          },
+          "content_type": {
+            "type": "string",
+            "title": "Content Type"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Size Bytes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "content_type",
+          "size_bytes"
+        ],
+        "title": "PublicationFile"
+      },
+      "PublicationHit": {
+        "properties": {
+          "entity_type": {
+            "type": "string",
+            "const": "publication",
+            "title": "Entity Type",
+            "default": "publication"
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Score"
+          },
+          "entity": {
+            "$ref": "#/components/schemas/PublicationSummary"
+          },
+          "snippets": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Snippets"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "score",
+          "entity"
+        ],
+        "title": "PublicationHit"
+      },
+      "PublicationMetrics": {
+        "properties": {
+          "citations": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Citations",
+            "default": 0
+          },
+          "views": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Views",
+            "default": 0
+          },
+          "downloads": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Downloads",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PublicationMetrics"
+      },
+      "PublicationProcessingStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "processing",
+          "completed",
+          "failed"
+        ],
+        "title": "PublicationProcessingStatus"
+      },
+      "PublicationSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "abstract": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abstract"
+          },
+          "publication_type": {
+            "$ref": "#/components/schemas/PublicationType"
+          },
+          "publication_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publication Date"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language"
+          },
+          "authors": {
+            "items": {
+              "$ref": "#/components/schemas/AuthorSummary"
+            },
+            "type": "array",
+            "title": "Authors"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/PublicationMetrics"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "publication_type",
+          "language",
+          "authors"
+        ],
+        "title": "PublicationSummary"
+      },
+      "PublicationType": {
+        "type": "string",
+        "enum": [
+          "article",
+          "journal_publication",
+          "book",
+          "monograph",
+          "preprint",
+          "other"
+        ],
+        "title": "PublicationType"
+      },
+      "PublicationUpdate": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "abstract": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abstract"
+          },
+          "publication_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicationType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "publication_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publication Date"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          },
+          "authors": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PublicationAuthorInput"
+                },
+                "type": "array",
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authors"
+          },
+          "category_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "minLength": 1
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Ids"
+          },
+          "external_identifiers": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ExternalIdentifier"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Identifiers"
+          },
+          "journal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Journal"
+          },
+          "publisher": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publisher"
+          },
+          "keywords": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Keywords"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PublicationUpdate"
+      },
+      "Ranking": {
+        "properties": {
+          "metric": {
+            "type": "string",
+            "title": "Metric"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RankingItem"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "metric",
+          "items"
+        ],
+        "title": "Ranking"
+      },
+      "RankingItem": {
+        "properties": {
+          "position": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Position"
+          },
+          "object": {
+            "$ref": "#/components/schemas/RankingObject"
+          },
+          "value": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Value"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "position",
+          "object",
+          "value"
+        ],
+        "title": "RankingItem"
+      },
+      "RankingObject": {
+        "properties": {
+          "entity_type": {
+            "type": "string",
+            "enum": [
+              "publication",
+              "author",
+              "keyword",
+              "concept"
+            ],
+            "title": "Entity Type"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "entity_type",
+          "id",
+          "label"
+        ],
+        "title": "RankingObject"
+      },
+      "Reference": {
+        "properties": {
+          "citing_publication_id": {
+            "type": "string",
+            "title": "Citing Publication Id"
+          },
+          "cited_publication_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cited Publication Id"
+          },
+          "raw_reference": {
+            "type": "string",
+            "title": "Raw Reference"
+          },
+          "publication": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicationSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "citing_publication_id",
+          "cited_publication_id",
+          "raw_reference"
+        ],
+        "title": "Reference"
+      },
+      "ScientificConcept": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "ScientificConcept"
+      },
+      "SearchFacet": {
+        "properties": {
+          "field": {
+            "type": "string",
+            "title": "Field"
+          },
+          "buckets": {
+            "items": {
+              "$ref": "#/components/schemas/FacetBucket"
+            },
+            "type": "array",
+            "title": "Buckets"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "field",
+          "buckets"
+        ],
+        "title": "SearchFacet"
+      },
+      "SearchFilters": {
+        "properties": {
+          "category": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "year_from": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 2100.0,
+                "minimum": 1000.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year From"
+          },
+          "year_to": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 2100.0,
+                "minimum": 1000.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year To"
+          },
+          "publication_type": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PublicationType"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publication Type"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          },
+          "author": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Author"
+          },
+          "organization": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Organization"
+          },
+          "journal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Journal"
+          },
+          "terms": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Terms"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "SearchFilters"
+      },
+      "SearchRequest": {
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Page",
+            "default": 1
+          },
+          "page_size": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Page Size",
+            "default": 20
+          },
+          "query": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Query"
+          },
+          "entity_type": {
+            "type": "string",
+            "enum": [
+              "publication",
+              "author"
+            ],
+            "title": "Entity Type",
+            "default": "publication"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "lexical",
+              "semantic",
+              "hybrid",
+              "similar"
+            ],
+            "title": "Mode",
+            "default": "hybrid"
+          },
+          "similar_to_publication_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Similar To Publication Id"
+          },
+          "filters": {
+            "$ref": "#/components/schemas/SearchFilters"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "relevance",
+              "date",
+              "citations",
+              "views",
+              "downloads"
+            ],
+            "title": "Sort",
+            "default": "relevance"
+          },
+          "include_facets": {
+            "type": "boolean",
+            "title": "Include Facets",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "SearchRequest"
+      },
+      "SearchResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/PublicationHit"
+                },
+                {
+                  "$ref": "#/components/schemas/AuthorHit"
+                }
+              ],
+              "discriminator": {
+                "propertyName": "entity_type",
+                "mapping": {
+                  "author": "#/components/schemas/AuthorHit",
+                  "publication": "#/components/schemas/PublicationHit"
+                }
+              }
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Page Size"
+          },
+          "facets": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/SearchFacet"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Facets"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "SearchResponse"
+      },
+      "Suggestion": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "publication",
+              "author",
+              "term"
+            ],
+            "title": "Type"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "matches_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Matches Count"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "type",
+          "text"
+        ],
+        "title": "Suggestion"
+      },
+      "Suggestions": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Suggestion"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "Suggestions"
+      },
+      "TermParameters": {
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "keybert",
+              "tfidf"
+            ],
+            "title": "Method",
+            "default": "keybert"
+          },
+          "top_k": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Top K",
+            "default": 20
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "TermParameters"
+      },
+      "ValidationIssue": {
+        "properties": {
+          "location": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "location",
+          "message",
+          "type"
+        ],
+        "title": "ValidationIssue"
+      },
+      "ViewCount": {
+        "properties": {
+          "publication_id": {
+            "type": "string",
+            "title": "Publication Id"
+          },
+          "views": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Views"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "publication_id",
+          "views"
+        ],
+        "title": "ViewCount"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Classification",
+      "description": "Discipline navigation"
+    },
+    {
+      "name": "Search",
+      "description": "Discovery and suggestions"
+    },
+    {
+      "name": "Publications",
+      "description": "Metadata, files and bibliography"
+    },
+    {
+      "name": "Authors",
+      "description": "Researcher profiles"
+    },
+    {
+      "name": "Analytics",
+      "description": "Aggregates, rankings and graphs"
+    },
+    {
+      "name": "Analysis",
+      "description": "Jobs and clustering"
+    }
+  ]
+}
